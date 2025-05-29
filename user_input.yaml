@@ -1,19 +1,43 @@
 # underlying 
-underlying : ['NSEFNO_BANKNIFTY' , 'NSEFNO_BANKNIFTY' , 'NSEFNO_FINNIFTY' , 'NSEFNO_MIDCPNIFTY']
+underlying:
+  - NSEFNO_BANKNIFTY
+  - NSEFNO_BANKNIFTY
+  - NSEFNO_FINNIFTY
+  - NSEFNO_MIDCPNIFTY
+
+# expiry 
+exp:
+  - H25
+  - J25
+  - H25
+  - J25
 
 # date range 
-start_date : ['20250315']*4
-end_date : ['20250318']*4
+start_date:
+  - '20250315'
+  - '20250315'
+  - '20250315'
+  - '20250315'
+
+end_date:
+  - '20250318'
+  - '20250318'
+  - '20250318'
+  - '20250318'
 
 # strike range from the opening of the underlying 
-strike_range : [2000]*4
+strike_range:
+  - 1000
+  - 1000
+  - 500
+  - 400
 
-# expiary 
-exp : ['H25' , 'J25' , 'H25' , 'J25' ] 
-
-# time steps in seceonds : 
-dt : 1 
+# time steps in seconds
+dt: 1
 
 # parent directory 
-parent_dir : ['/data/NSE/bindata_indices/']*4
-
+parent_dir:
+  - /data/NSE/bindata_indices/
+  - /data/NSE/bindata_indices/
+  - /data/NSE/bindata_indices/
+  - /data/NSE/bindata_indices/

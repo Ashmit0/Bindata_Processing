@@ -87,55 +87,55 @@ def process_options_data( strike_rows:list, date:str, time_index , nresult_df ):
 
 
 
-def create_main_dict( dates_formated , dates_log_path , time_indexs , inputs ) : 
-    main_dict = {}
-    for date , path , time_index in zip( dates_formated , dates_log_path , time_indexs): 
-        symbol = inputs['underlying'] + '_' + get_date_code( inputs['exp'] )
+# def create_main_dict( dates_formated , dates_log_path , time_indexs , inputs ) : 
+#     main_dict = {}
+#     for date , path , time_index in zip( dates_formated , dates_log_path , time_indexs): 
+#         symbol = inputs['underlying'] + '_' + get_date_code( inputs['exp'] )
 
-        main_dict[date] = {}
+#         main_dict[date] = {}
 
-        chunk_size = 100000 # Tune as needed
-        spot_rows = []
-        strike_rows = []
+#         chunk_size = 100000 # Tune as needed
+#         spot_rows = []
+#         strike_rows = []
 
-        for chunk in pd.read_csv(path, chunksize=chunk_size , usecols= [1,2,8]):
-            # Filter rows where Symbol exactly matches 'NSEFNO_BANKNIFTY_F25'
-            matched = chunk[chunk['Symbol'] == symbol]
-            spot_rows.append(matched)
-            # save to dict 
-            main_dict[date]['Spot'] = process_spot_data( spot_rows , date , time_index )
+#         for chunk in pd.read_csv(path, chunksize=chunk_size , usecols= [1,2,8]):
+#             # Filter rows where Symbol exactly matches 'NSEFNO_BANKNIFTY_F25'
+#             matched = chunk[chunk['Symbol'] == symbol]
+#             spot_rows.append(matched)
+#             # save to dict 
+#             main_dict[date]['Spot'] = process_spot_data( spot_rows , date , time_index )
 
-            # For strike rows : 
-            matched = chunk[
-                chunk['Symbol'].str.startswith(symbol) & 
-                (chunk['Symbol'] != symbol ) 
-            ].copy()
-            split_cols = matched['Symbol'].str.split('_', expand=True)
+#             # For strike rows : 
+#             matched = chunk[
+#                 chunk['Symbol'].str.startswith(symbol) & 
+#                 (chunk['Symbol'] != symbol ) 
+#             ].copy()
+#             split_cols = matched['Symbol'].str.split('_', expand=True)
 
-            matched.loc[:, 'Strike'] = split_cols[3].astype(float)
-            matched.loc[:, 'Type'] = split_cols[5]
+#             matched.loc[:, 'Strike'] = split_cols[3].astype(float)
+#             matched.loc[:, 'Type'] = split_cols[5]
 
-            # get the strike range : 
-            # spot at 09:15:05 
-            spot = main_dict[date]['Spot']['Close'].iloc[4]
-            min_strike = spot - inputs['strike_range']/2 
-            max_strike = spot + inputs['strike_range']/2
+#             # get the strike range : 
+#             # spot at 09:15:05 
+#             spot = main_dict[date]['Spot']['Close'].iloc[4]
+#             min_strike = spot - inputs['strike_range']/2 
+#             max_strike = spot + inputs['strike_range']/2
 
-            matched['Strike'] = matched['Strike'].astype(float)
+#             matched['Strike'] = matched['Strike'].astype(float)
             
-            matched = matched[
-                (matched['Strike'] >= min_strike ) & 
-                (matched['Strike'] <= max_strike )
-            ]
-            strike_rows.append(matched)
+#             matched = matched[
+#                 (matched['Strike'] >= min_strike ) & 
+#                 (matched['Strike'] <= max_strike )
+#             ]
+#             strike_rows.append(matched)
 
-        # save to dict 
-        main_dict[date]['Strike'] = process_options_data(strike_rows , date , time_index , main_dict[date]['Spot'])
-    return main_dict 
+#         # save to dict 
+#         main_dict[date]['Strike'] = process_options_data(strike_rows , date , time_index , main_dict[date]['Spot'])
+#     return main_dict 
 
 
-def create_date_dict( date , path , time_index , inputs ): 
-    symbol = inputs['underlying'] + '_' + get_date_code( inputs['exp'] )
+def create_date_dict( date , path , time_index , inputs , i  ): 
+    symbol = inputs['underlying'][i] + '_' +  inputs['exp'][i]
 
     date_dict = {}
 
@@ -162,8 +162,8 @@ def create_date_dict( date , path , time_index , inputs ):
         # get the strike range : 
         # spot at 09:15:05 
         spot = spot_rows[0]['Close'].to_list()[0]/100 
-        min_strike = spot - inputs['strike_range']/2 
-        max_strike = spot + inputs['strike_range']/2
+        min_strike = spot - inputs['strike_range'][i]/2 
+        max_strike = spot + inputs['strike_range'][i]/2
 
         matched['Strike'] = matched['Strike'].astype(float)
         

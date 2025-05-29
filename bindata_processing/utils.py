@@ -23,13 +23,16 @@ def drop_weekends(date_range: pd.DatetimeIndex) -> pd.DatetimeIndex:
 
 # format from one fromat to another 
 def format_dates(date_list):
-    parsed_dates = pd.to_datetime(date_list, format='%Y%m%d')
-    return parsed_dates.strftime('%d-%m-%Y').tolist()
+    n = len( date_list )
+    parsed_dates = [pd.to_datetime(date_list[i], format='%Y%m%d') for i in range(n)]
+    return [parsed_dates[i].strftime('%d-%m-%Y').tolist() for i in range(n) ]
 
 
-def get_log_file_path( date_name : str , parent_dir : str  ) : 
-    dir = os.path.join( parent_dir , date_name , 'bin_data_archival_' + date_name + '.log')
-    return dir 
+def get_log_file_path( inputs , dates_list ) : 
+    paths = []
+    for parent , dates in zip(inputs['parent_dir'] , dates_list) : 
+        paths.append( [os.path.join( parent , date , 'bin_data_archival_' + date + '.log') for date in dates ] ) 
+    return paths 
 
 
 month_to_nse_code = {
@@ -108,5 +111,5 @@ def groupby_to_nested_dict(df, group_cols):
     }
 
 
-def get_pickel_name( inputs , date , code ) : 
-    return 'cache/' + '_'.join([date,inputs['underlying'],str(inputs['strike_range']),code]) + '.pkl' 
+def get_pickel_name( inputs , i , date ) : 
+    return 'cache/' + '_'.join([date,inputs['underlying'][i],str(inputs['strike_range'][i]),inputs['exp'][i]] ) + '.pkl' 

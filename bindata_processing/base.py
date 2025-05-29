@@ -29,33 +29,38 @@ class bindata_query :
     def __init__(self,inputs) -> None:
         self.inputs = inputs 
 
+        self.N = len(inputs['underlying'])
+
         # list of working dates 
-        self.dates = pd.date_range( start= inputs['start_date'] , end = inputs['end_date'] , freq = 'D' )
-        self.dates = drop_weekends( self.dates )
-        self.dates = self.dates.strftime( date_format= date_format).to_list()
+        self.dates = [pd.date_range( start= inputs['start_date'][i] , end = inputs['end_date'][i] , freq = 'D' ) for i in range(self.N) ]
+        self.dates = [drop_weekends( self.dates[i] ) for i in range(self.N) ]
+        self.dates = [self.dates[i].strftime( date_format= date_format).to_list() for i in range(self.N) ]
 
         # dates in standard format 
         self.dates_formated = format_dates( self.dates )
 
         # lof file paths : 
-        self.dates_log_path = [ get_log_file_path(date , inputs['parent_dir']) for date in self.dates ]
-
-        # contract exp code  :
-        self.code = get_date_code( inputs['exp'] )
+        self.dates_log_path = get_log_file_path( self.inputs , self.dates )
 
         # second wise time indices : 
-        self.time_indexs = [ pd.date_range(start= date + ' ' + "09:15:01", end=date + ' ' + "15:30:00", freq='s') for date in self.dates ]
+        self.time_indexs = [[ pd.date_range(start= date + ' ' + "09:15:01", end=date + ' ' + "15:30:00", freq='s') for date in self.dates[i] ] for i in range(self.N)]
 
     
     def load_dict(self)-> None : 
         main_dict = {}
-        for date , path , time_index in zip(self.dates_formated , self.dates_log_path, self.time_indexs ) : 
-            pkl_name = get_pickel_name( self.inputs , date , self.code )
-            try : 
-                with open(pkl_name , 'rb' ) as f : 
-                    main_dict[date] = pickle.load(f)
-            except : 
-                main_dict[date] = create_date_dict( date , path , time_index , self.inputs  )
-                with open(pkl_name , 'wb' ) as f : 
-                    pickle.dump( main_dict[date] , f )
+        for underlying in self.inputs['underlying'] : 
+            main_dict[underlying] = {}
+        for i , underlying in enumerate( self.inputs['underlying'] ):
+            code = self.inputs['exp'][i]
+            main_dict[underlying][code] = {}
+            for date , path , time_index in zip(self.dates_formated[i] , self.dates_log_path[i], self.time_indexs[i] ) : 
+                pkl_name = get_pickel_name( self.inputs , i  , date  )
+                try : 
+                    with open(pkl_name , 'rb' ) as f : 
+                        main_dict[underlying][code][date] = pickle.load(f)
+                except : 
+                    print(f'Creating {pkl_name}. This is a one time process ...')
+                    main_dict[underlying][code][date] = create_date_dict( date , path , time_index , self.inputs , i  )
+                    with open(pkl_name , 'wb' ) as f : 
+                        pickle.dump( main_dict[underlying][code][date] , f )
         self.main_dict =  main_dict 
