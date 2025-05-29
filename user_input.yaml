@@ -1,0 +1,19 @@
+# underlying 
+underlying : ['NSEFNO_BANKNIFTY' , 'NSEFNO_BANKNIFTY' , 'NSEFNO_FINNIFTY' , 'NSEFNO_MIDCPNIFTY']
+
+# date range 
+start_date : ['20250315']*4
+end_date : ['20250318']*4
+
+# strike range from the opening of the underlying 
+strike_range : [2000]*4
+
+# expiary 
+exp : ['H25' , 'J25' , 'H25' , 'J25' ] 
+
+# time steps in seceonds : 
+dt : 1 
+
+# parent directory 
+parent_dir : ['/data/NSE/bindata_indices/']*4
+
