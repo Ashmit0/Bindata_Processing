@@ -48,3 +48,12 @@ def print_dict_hierarchy(d, indent : int = 0 ):
         print('|\t'*indent , key )
         if isinstance( val , dict ) : 
             print_dict_hierarchy( val , indent + 1 )
+
+
+def dict_hierarchy_to_str(d, indent: int = 0) -> str:
+    result = ""
+    for key, val in d.items():
+        result += ('|\t' * indent) + str(key) + "\n"
+        if isinstance(val, dict):
+            result += dict_hierarchy_to_str(val, indent + 1)
+    return result

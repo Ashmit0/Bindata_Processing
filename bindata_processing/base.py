@@ -45,6 +45,8 @@ class bindata_query :
         # second wise time indices : 
         self.time_indexs = [[ pd.date_range(start= date + ' ' + "09:15:01", end=date + ' ' + "15:30:00", freq='s') for date in self.dates[i] ] for i in range(self.N)]
 
+        self.main_dict = {}
+
     
     def load_dict(self)-> None : 
         main_dict = {}
@@ -64,3 +66,7 @@ class bindata_query :
                     with open(pkl_name , 'wb' ) as f : 
                         pickle.dump( main_dict[underlying][code][date] , f )
         self.main_dict =  main_dict 
+
+
+    def __str__(self):
+        return dict_hierarchy_to_str( self.main_dict )
